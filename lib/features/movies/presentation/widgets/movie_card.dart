@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:movie_db_app/core/utils/utils.dart';
 import 'package:movie_db_app/features/movies/data/models/movie_model.dart';
 
-class MovieGridItem extends StatelessWidget {
-  const MovieGridItem({super.key, required this.movie, required this.onTap});
+class MovieCard extends StatelessWidget {
+  const MovieCard({super.key, required this.movie, required this.onTap});
 
   final MovieModel movie;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -28,12 +29,13 @@ class MovieGridItem extends StatelessWidget {
             movie.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: textTheme.labelLarge,
           ),
           Text(
             formatDate(movie.releaseDate),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            style: textTheme.bodySmall,
           ),
         ],
       ),

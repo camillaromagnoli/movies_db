@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_db_app/core/routes/app_routes_path.dart';
+import 'package:movie_db_app/core/design/app_bar.dart';
+import 'package:movie_db_app/core/routes/route_paths.dart';
+import 'package:movie_db_app/core/utils/app_texts.dart';
 import 'package:movie_db_app/features/movies/presentation/cubit/movies/movies_cubit.dart';
-import 'package:movie_db_app/features/movies/presentation/widgets/movie_grid_item.dart';
+import 'package:movie_db_app/features/movies/presentation/widgets/movie_card.dart';
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -35,19 +37,10 @@ class _MoviesViewState extends State<MoviesPage> {
     super.initState();
   }
 
-  Widget _buildLoadingFooter() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(child: CircularProgressIndicator()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Popular Movies', style: TextStyle(fontSize: 24)),
-      ),
+      appBar: MoviesAppBar(title: AppTexts.popularMoviesAppBarTitle),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: BlocBuilder<MoviesCubit, MoviesState>(
@@ -55,12 +48,12 @@ class _MoviesViewState extends State<MoviesPage> {
             final cubit = context.read<MoviesCubit>();
             final movies = cubit.movies;
 
-            if (state is MoviesLoading && movies.isEmpty) {
+            if (state.status == MoviesStatus.loading && movies.isEmpty) {
               return Center(child: CircularProgressIndicator());
             }
 
-            if (state is MoviesError) {
-              return Center(child: Text('Erro: ${state.message}'));
+            if (state.status == MoviesStatus.failure) {
+              return Center(child: Text(AppTexts.serviceErrorMessage));
             }
 
             return GridView.builder(
@@ -75,14 +68,15 @@ class _MoviesViewState extends State<MoviesPage> {
               ),
               itemBuilder: (context, index) {
                 if (index == movies.length && cubit.isLoadingMore) {
-                  return _buildLoadingFooter();
+                  return Center(child: CircularProgressIndicator());
                 }
 
                 final movie = movies[index];
-                return MovieGridItem(
+                return MovieCard(
                   movie: movie,
                   onTap:
-                      () => context.push(AppRoutePaths.movieDetails(movie.id)),
+                      () =>
+                          context.push(RoutePaths.movieDetailsWithId(movie.id)),
                 );
               },
             );

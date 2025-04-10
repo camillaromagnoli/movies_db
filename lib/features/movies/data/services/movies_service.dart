@@ -41,7 +41,7 @@ class MoviesServiceImpl extends MoviesService {
     } on DioException catch (e) {
       throw handleDioError(e);
     } catch (e) {
-      throw Failure("Unexpected error: ${e.toString()}");
+      throw ServerException();
     }
   }
 
@@ -56,7 +56,7 @@ class MoviesServiceImpl extends MoviesService {
     } on DioException catch (e) {
       throw handleDioError(e);
     } catch (e) {
-      throw Failure("Unexpected error: ${e.toString()}");
+      throw ServerException();
     }
   }
 }

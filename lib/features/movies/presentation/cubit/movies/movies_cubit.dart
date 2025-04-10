@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_db_app/features/movies/data/services/movies_service.dart';
 import 'package:movie_db_app/features/movies/data/models/movie_model.dart';
@@ -17,18 +18,21 @@ class MoviesCubit extends Cubit<MoviesState> {
 
   MoviesCubit({required MoviesService services})
     : _services = services,
-      super(MoviesInitial());
+      super(MoviesState.initial());
 
   Future<void> getPopularMovies({bool isInitial = false}) async {
-    if (_isLoadingMore || (!isInitial && state is MoviesLoading)) return;
+    if (_isLoadingMore ||
+        (!isInitial && state.status == MoviesStatus.loading)) {
+      return;
+    }
 
     if (isInitial) {
-      emit(MoviesLoading());
+      emit(state.copyWith(status: MoviesStatus.loading));
       _movies.clear();
       _page = 1;
     } else {
       _isLoadingMore = true;
-      emit(MoviesLoadMore());
+      emit(state.copyWith(status: MoviesStatus.success));
     }
 
     try {
@@ -37,9 +41,14 @@ class MoviesCubit extends Cubit<MoviesState> {
       _movies.addAll(response);
       _page++;
 
-      emit(MoviesSuccess(List.from(_movies)));
+      emit(
+        state.copyWith(
+          status: MoviesStatus.success,
+          movies: List.from(_movies),
+        ),
+      );
     } catch (e) {
-      emit(MoviesError(e.toString()));
+      emit(state.copyWith(status: MoviesStatus.failure));
     } finally {
       _isLoadingMore = false;
     }

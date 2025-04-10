@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:movie_db_app/core/network/api_routes.dart';
+import 'package:movie_db_app/core/network/query_parameters.dart';
 
 import 'injection.config.dart';
 
@@ -15,7 +17,7 @@ abstract class RegisterModule {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           options.queryParameters.addAll({
-            'api_key': 'a75a3482c806b4dd11b0cf9a7f0919ec',
+            ApiQueryParams.apiKey: dotenv.env['API_KEY'],
           });
           return handler.next(options);
         },

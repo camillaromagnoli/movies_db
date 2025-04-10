@@ -12,15 +12,17 @@ class MovieDetailsCubit extends Cubit<MovieDetailsState> {
 
   MovieDetailsCubit({required MoviesService service})
     : _service = service,
-      super(MovieDetailsInitial());
+      super(MovieDetailsState.initial());
 
   Future<void> getMovieDetails({required int movieId}) async {
-    emit(MovieDetailsLoading());
+    emit(state.copyWith(status: MovieDetailsStatus.loading));
     try {
-      final details = await _service.getMovieDetails(movieId: movieId);
-      emit(MovieDetailsLoaded(details));
+      final movieDetails = await _service.getMovieDetails(movieId: movieId);
+      emit(
+        state.copyWith(status: MovieDetailsStatus.success, movie: movieDetails),
+      );
     } catch (e) {
-      emit(MovieDetailsError(e.toString()));
+      emit(state.copyWith(status: MovieDetailsStatus.failure));
     }
   }
 }
