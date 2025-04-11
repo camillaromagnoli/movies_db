@@ -5,7 +5,8 @@ import 'package:movie_db_app/core/design/app_bar.dart';
 import 'package:movie_db_app/core/routes/route_paths.dart';
 import 'package:movie_db_app/core/utils/app_texts.dart';
 import 'package:movie_db_app/features/movies/presentation/cubit/movies/movies_cubit.dart';
-import 'package:movie_db_app/features/movies/presentation/widgets/movie_card.dart';
+import 'package:movie_db_app/features/movies/presentation/widgets/movie_card_widget.dart';
+import 'package:movie_db_app/features/movies/presentation/widgets/movie_error_widget.dart';
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -15,26 +16,27 @@ class MoviesPage extends StatefulWidget {
 }
 
 class _MoviesViewState extends State<MoviesPage> {
-  late ScrollController _scrollController;
-  late MoviesCubit cubit;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
-    _scrollController = ScrollController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      cubit = context.read<MoviesCubit>();
+    super.initState();
 
+    _scrollController = ScrollController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<MoviesCubit>();
       cubit.getPopularMovies(isInitial: true);
 
       _scrollController.addListener(() {
+        final cubit = context.read<MoviesCubit>();
         if (_scrollController.position.pixels >=
                 _scrollController.position.maxScrollExtent &&
-            !cubit.isLoadingMore) {
+            !cubit.state.isLoadingMore) {
           cubit.getPopularMovies();
         }
       });
     });
-    super.initState();
   }
 
   @override
@@ -46,20 +48,28 @@ class _MoviesViewState extends State<MoviesPage> {
         child: BlocBuilder<MoviesCubit, MoviesState>(
           builder: (context, state) {
             final cubit = context.read<MoviesCubit>();
-            final movies = cubit.movies;
-
+            final movies = state.movies;
             if (state.status == MoviesStatus.loading && movies.isEmpty) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             }
 
-            if (state.status == MoviesStatus.failure) {
-              return Center(child: Text(AppTexts.serviceErrorMessage));
+            if (state.status == MoviesStatus.failure && movies.isEmpty) {
+              return Center(
+                child: MoviesErrorWidget(
+                  errorMessage: AppTexts.serverErrorMessage,
+                  onRefresh: () => cubit.getPopularMovies(isInitial: true),
+                ),
+              );
             }
 
             return GridView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(8),
-              itemCount: movies.length + (cubit.isLoadingMore ? 1 : 0),
+              itemCount:
+                  movies.length +
+                  (state.isLoadingMore || state.status == MoviesStatus.failure
+                      ? 1
+                      : 0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 mainAxisSpacing: 24,
@@ -67,12 +77,21 @@ class _MoviesViewState extends State<MoviesPage> {
                 childAspectRatio: 0.55,
               ),
               itemBuilder: (context, index) {
-                if (index == movies.length && cubit.isLoadingMore) {
-                  return Center(child: CircularProgressIndicator());
+                if (index == movies.length) {
+                  if (state.status == MoviesStatus.failure) {
+                    return MoviesErrorWidget(
+                      errorMessage: AppTexts.serverErrorMessage,
+                      onRefresh: () => cubit.getPopularMovies(),
+                    );
+                  }
+
+                  if (state.isLoadingMore) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
                 }
 
                 final movie = movies[index];
-                return MovieCard(
+                return MovieCardWidget(
                   movie: movie,
                   onTap:
                       () =>
@@ -89,7 +108,6 @@ class _MoviesViewState extends State<MoviesPage> {
   @override
   void dispose() {
     _scrollController.dispose();
-    cubit.close();
     super.dispose();
   }
 }

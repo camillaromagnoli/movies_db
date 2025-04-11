@@ -23,7 +23,8 @@ class ServerException extends Failure {
 
 handleDioError<T>(DioException e) {
   if (e.type == DioExceptionType.unknown ||
-      e.type == DioExceptionType.connectionTimeout) {
+      e.type == DioExceptionType.connectionTimeout ||
+      e.type == DioExceptionType.connectionError) {
     return NetworkException("Failed to connect to the network");
   } else if (e.response != null) {
     return ServerException(

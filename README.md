@@ -1,16 +1,17 @@
-# movie_db_app
+# 🎬 Movie DB App
 
-A new Flutter project.
+A Flutter application that shows popular movies and movie details using the TMDB API.
 
-## Getting Started
+## Architecture
 
-This project is a starting point for a Flutter application.
+This app follows a **simple MVVM-inspired architecture**. Cubits act as ViewModels, separating UI from logic, while services handle API calls.
 
-A few resources to get you started if this is your first Flutter project:
+- `Cubit` from `flutter_bloc` for state management
+- `Dio` for API communication
+- `get_it` and `injectable` for dependency injection 
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Run the App
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run

@@ -1,9 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:movie_db_app/core/network/api_response_keys.dart';
-import 'package:movie_db_app/core/network/api_routes.dart';
-import 'package:movie_db_app/core/network/exceptions.dart';
-import 'package:movie_db_app/core/network/query_parameters.dart';
+import 'package:movie_db_app/core/network/network.dart';
 import 'package:movie_db_app/features/movies/data/models/movie_details_model.dart';
 import 'package:movie_db_app/features/movies/data/models/movie_model.dart';
 
@@ -21,9 +18,7 @@ class MoviesServiceImpl extends MoviesService {
   @override
   Future<List<MovieModel>> getPopularMovies({required int page}) async {
     try {
-      await Future.delayed(Duration(seconds: 2));
       List<MovieModel> movies = [];
-
       final Response response = await _dio.get(
         ApiRoutes.popularMovies,
         queryParameters: {ApiQueryParams.page: page},
@@ -41,7 +36,7 @@ class MoviesServiceImpl extends MoviesService {
     } on DioException catch (e) {
       throw handleDioError(e);
     } catch (e) {
-      throw ServerException();
+      throw Failure(e.toString());
     }
   }
 
@@ -56,7 +51,7 @@ class MoviesServiceImpl extends MoviesService {
     } on DioException catch (e) {
       throw handleDioError(e);
     } catch (e) {
-      throw ServerException();
+      throw Failure(e.toString());
     }
   }
 }

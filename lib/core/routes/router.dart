@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:movie_db_app/core/di/injection.dart';
 import 'package:movie_db_app/core/routes/route_paths.dart';
 import 'package:movie_db_app/features/movies/presentation/cubit/movies/movies_cubit.dart';
-import 'package:movie_db_app/features/movies/presentation/pages/movie_details_page.dart';
-import 'package:movie_db_app/features/movies/presentation/pages/movies_page.dart';
+import 'package:movie_db_app/features/movies/presentation/pages/movie_details/movie_details_page.dart';
+import 'package:movie_db_app/features/movies/presentation/pages/movies/movies_page.dart';
 
 final router = GoRouter(
   routes: [

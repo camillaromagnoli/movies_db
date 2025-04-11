@@ -9,48 +9,40 @@ part 'movies_state.dart';
 @Injectable()
 class MoviesCubit extends Cubit<MoviesState> {
   final MoviesService _services;
-  int _page = 1;
-  bool _isLoadingMore = false;
-  final List<MovieModel> _movies = [];
-
-  List<MovieModel> get movies => _movies;
-  bool get isLoadingMore => _isLoadingMore;
 
   MoviesCubit({required MoviesService services})
     : _services = services,
       super(MoviesState.initial());
 
   Future<void> getPopularMovies({bool isInitial = false}) async {
-    if (_isLoadingMore ||
+    if (state.isLoadingMore ||
         (!isInitial && state.status == MoviesStatus.loading)) {
       return;
     }
 
     if (isInitial) {
-      emit(state.copyWith(status: MoviesStatus.loading));
-      _movies.clear();
-      _page = 1;
+      emit(state.copyWith(status: MoviesStatus.loading, movies: [], page: 1));
     } else {
-      _isLoadingMore = true;
-      emit(state.copyWith(status: MoviesStatus.success));
+      emit(state.copyWith(isLoadingMore: true));
     }
 
     try {
-      final response = await _services.getPopularMovies(page: _page);
+      final response = await _services.getPopularMovies(page: state.page);
 
-      _movies.addAll(response);
-      _page++;
+      final updatedMovies = List<MovieModel>.from(state.movies)
+        ..addAll(response);
 
       emit(
         state.copyWith(
           status: MoviesStatus.success,
-          movies: List.from(_movies),
+          movies: updatedMovies,
+          page: state.page + 1,
         ),
       );
     } catch (e) {
       emit(state.copyWith(status: MoviesStatus.failure));
     } finally {
-      _isLoadingMore = false;
+      emit(state.copyWith(isLoadingMore: false));
     }
   }
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:movie_db_app/core/design/design.dart';
 import 'package:movie_db_app/core/utils/utils.dart';
 import 'package:movie_db_app/features/movies/data/models/movie_model.dart';
 
-class MovieCard extends StatelessWidget {
-  const MovieCard({super.key, required this.movie, required this.onTap});
+class MovieCardWidget extends StatelessWidget {
+  const MovieCardWidget({super.key, required this.movie, required this.onTap});
 
   final MovieModel movie;
   final VoidCallback onTap;
@@ -17,7 +18,7 @@ class MovieCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppBorderRadius.large,
             child: Image.network(
               movie.posterPath,
               width: double.infinity,
